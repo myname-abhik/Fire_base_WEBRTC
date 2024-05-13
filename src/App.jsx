@@ -1,14 +1,23 @@
 import dbref,{userName,connectedRef} from './server/firebase'
 import { useEffect } from 'react'
 import { connect } from "react-redux"
-import { addParticipant, removeParticipant, setUser } from './store/actioncreator'
+import { addParticipant, removeParticipant, setUser, setUserStream } from './store/actioncreator'
+import { MainScreen } from './component/MainScreen/MainScreen.Component'
 
 
 
 function App(props) {
   const participantRef = dbref.child("participants")
   useEffect(()=>{
-  connectedRef.on('value', snap =>{
+     navigator.mediaDevices.getUserMedia({audio:true,video:true,})
+      .then((mediaStream)=>{
+      // mediaStream.getVideoTracks()[0].enabled =  false;
+     props.setUserStream(mediaStream)
+      // console.log(mediaStream); 
+    })
+
+  connectedRef.on('value', (snap) =>{
+  
     if(snap.val())
       {
         const defaultPreferences = {
@@ -29,7 +38,7 @@ function App(props) {
         userRef.onDisconnect().remove()
       }
   })
-  
+ 
   },[])
   useEffect(()=>{
    if(props.user){
@@ -39,21 +48,24 @@ function App(props) {
         [snap.key]:{
           userName,
           ...preferences,
+         
+          
         }
       })
     })
-    participantRef.on('child_removed',(snap)=>{
-     
-      props.removeParticipant(snap.key)
-    })
-   }
+  
+    participantRef.on("child_removed", (snap) => {
+      props.removeParticipant(snap.key);
+    });
+  }
+   
   },[props.user])
   return (
     
     <>
-    <div className='App'>current User :{JSON.stringify(props.user)} <br/>
-
-    participants : {JSON.stringify(props.participants)}</div>
+    <div className='App'>
+      <MainScreen/>
+    </div>
     </>
   )
 }
@@ -67,6 +79,7 @@ const mapStateToProps = (state)=>{
 }
 const mapDispatchToProps = (dispatch)=>{
  return {
+  setUserStream: (stream)=>dispatch(setUserStream(stream)),
   setUser: (user)=>dispatch(setUser(user)),
   addParticipant: (participant)=>dispatch(addParticipant(participant)),
   removeParticipant: (participantKey)=>dispatch(removeParticipant(participantKey))
