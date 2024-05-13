@@ -20,9 +20,9 @@ function App(props) {
   
     if(snap.val())
       {
-        const defaultPreferences = {
+        const defaultPreferences =  {
           audio:true,
-          video:true,
+          video:false,
           screen:false
         }
        const userRef =   participantRef.push({
