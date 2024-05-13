@@ -22,7 +22,7 @@ function App(props) {
       {
         const defaultPreferences = {
           audio:true,
-          video:false,
+          video:true,
           screen:false
         }
        const userRef =   participantRef.push({
